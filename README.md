@@ -48,5 +48,5 @@ Abrir http://localhost:3000
 
 ## Enlaces
 
-- Repositorio: _(pegar link)_
+- Repositorio: https://github.com/geanayala-01/cine-omdb
 - Vercel: https://cine-next-gean.vercel.app/#taquilla
