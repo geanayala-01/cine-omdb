@@ -49,4 +49,4 @@ Abrir http://localhost:3000
 ## Enlaces
 
 - Repositorio: _(pegar link)_
-- Vercel: _(pegar link)_
+- Vercel: https://cine-next-gean.vercel.app/#taquilla
