@@ -1,69 +1,117 @@
-import Image from "next/image";
+import { connection } from 'next/server'
+import { getPopularMovies } from '../lib/omdb'
+import PopularGrid from '../components/PopularGrid'
+import SearchMovies from '../components/SearchMovies'
+import PopcornRain from '../components/PopcornRain'
 
-export default function Home() {
+// Next 16 (cacheComponents): permite que la página espere los datos del servidor
+export const instant = false
+
+function RenderBadge({ type }: { type: 'SSR' | 'CSR' }) {
+  const styles =
+    type === 'SSR'
+      ? 'border-emerald-400/60 bg-emerald-500/15 text-emerald-300'
+      : 'border-sky-400/60 bg-sky-500/15 text-sky-300'
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <span className={`rounded-full border px-3 py-1 text-xs font-bold tracking-wider ${styles}`}>
+      {type === 'SSR' ? '⚡ SSR · Servidor' : '🔄 CSR · Navegador'}
+    </span>
+  )
+}
+
+export default async function Home() {
+  await connection() // se renderiza en el servidor en cada petición (SSR)
+  const popular = await getPopularMovies()
+
+  return (
+    <>
+      <div className="curtain curtain-left hidden md:block" />
+      <div className="curtain curtain-right hidden md:block" />
+      <PopcornRain />
+
+      <main className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-24 pt-10 md:px-[calc(5vw+1.5rem)]">
+        {/* Marquesina */}
+        <header className="bulbs mx-auto max-w-3xl">
+          <div className="relative z-10 rounded-xl bg-gradient-to-b from-[#3a070b] to-[#1a0204] px-6 py-6 text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.5em] text-gold-soft/80">Lab 09 · Next.js</p>
+            <h1 className="font-display text-6xl leading-none tracking-wider text-gold drop-shadow-[0_0_18px_rgba(245,197,24,0.6)] md:text-8xl">
+              Cine Next
+            </h1>
+            <p className="mt-1 text-sm text-neutral-300">Galería de Películas y Series · API de OMDb</p>
+          </div>
+        </header>
+
+        {/* Pantalla */}
+        <div className="mx-auto mt-12 max-w-5xl [perspective:900px]">
+          <div className="screen-glow rounded-[50%/14%] bg-gradient-to-b from-[#fffaf0] to-[#e9dcc4] px-6 py-8 text-center text-neutral-900 [transform:rotateX(14deg)]">
+            <p className="font-display text-3xl tracking-[0.3em] md:text-5xl">🎬 Ahora en cartelera</p>
+            <p className="mt-1 text-sm text-neutral-600">Elige tu butaca y haz clic para ver el detalle de la función</p>
+            <nav className="mt-4 flex justify-center gap-3 text-sm font-semibold">
+              <a href="#cartelera" className="rounded-full bg-neutral-900 px-4 py-2 text-white transition hover:bg-velvet">
+                Cartelera
+              </a>
+              <a href="#taquilla" className="rounded-full bg-neutral-900 px-4 py-2 text-white transition hover:bg-velvet">
+                Taquilla
+              </a>
+            </nav>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        {/* Cartelera: SSR */}
+        <section id="cartelera" className="mt-16 scroll-mt-8">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-display text-5xl tracking-wider text-white">⭐ Cartelera popular</h2>
+              <p className="text-neutral-400">Las funciones más pedidas de la semana</p>
+            </div>
+            <RenderBadge type="SSR" />
+          </div>
+
+          {popular.length > 0 ? (
+            <PopularGrid movies={popular} />
+          ) : (
+            <p className="rounded-xl bg-velvet/20 p-6 text-center text-red-200">
+              No se pudo cargar la cartelera. Revisa la variable OMDB_API_KEY.
+            </p>
+          )}
+        </section>
+
+        {/* Taquilla: CSR */}
+        <section id="taquilla" className="mt-20 scroll-mt-8">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-display text-5xl tracking-wider text-white">🎟️ Taquilla</h2>
+              <p className="text-neutral-400">Busca cualquier película o serie en tiempo real, sin recargar la página</p>
+            </div>
+            <RenderBadge type="CSR" />
+          </div>
+          <SearchMovies />
+        </section>
+
+        {/* Justificación */}
+        <section className="mt-20 grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border-2 border-emerald-400/40 bg-emerald-500/10 p-6">
+            <h3 className="font-display text-3xl tracking-wider text-emerald-300">⚡ ¿Por qué SSR en la cartelera?</h3>
+            <p className="mt-2 text-sm leading-relaxed text-neutral-300">
+              La lista de populares es igual para todos y es lo primero que se ve, así que se obtiene en el servidor con
+              async/await. El HTML llega con las películas listas, carga más rápido, sirve para el SEO y la API key de OMDb
+              nunca se expone al navegador.
+            </p>
+          </div>
+          <div className="rounded-2xl border-2 border-sky-400/40 bg-sky-500/10 p-6">
+            <h3 className="font-display text-3xl tracking-wider text-sky-300">🔄 ¿Por qué CSR en la taquilla?</h3>
+            <p className="mt-2 text-sm leading-relaxed text-neutral-300">
+              La búsqueda depende de lo que escribe cada usuario, así que usa &apos;use client&apos; con useState y useEffect
+              para pedir los resultados desde el navegador mientras escribe, mostrarlos al instante y abrir el detalle en
+              un modal sin recargar la página.
+            </p>
+          </div>
+        </section>
+
+        <footer className="mt-16 text-center text-xs text-neutral-500">
+          🍿 Cine Next · Desarrollo de Aplicaciones Web Avanzado · Datos de OMDb API
+        </footer>
       </main>
-    </div>
-  );
+    </>
+  )
 }
